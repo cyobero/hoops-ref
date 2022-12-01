@@ -85,16 +85,11 @@ class HoopsRefClient:
 
         Original table: https://www.basketball-reference.com/leagues/NBA_2022.html#per_game-team
         """
-        url = f'{self.ENDPOINT}/leagues/NBA_{season}.html#per_game-'
-        if opponent:
-            url += 'opponent'
-            df = pd.read_html(url)
-            return df[5]
-
-        # removes the asterisk (*) from some of the team names
-        df = pd.read_html(url)[4]
+        url = f'https://www.basketball-reference.com/leagues/NBA_{season}.html#per_game'
+        index = 5 if opponent else 4
+        df = pd.read_html(url)[index]
         df['Team'] = df['Team'].apply(lambda x: x.strip('*'))
-        return df[1:-2]
+        return df.iloc[:-1, 1:]
 
     def per_game_player(self, season: int) -> pd.DataFrame:
         """
@@ -107,7 +102,7 @@ class HoopsRefClient:
             df = df.drop(df[df['Player'] == 'Player'].index).reset_index()
             df['Age'] = df['Age'].astype('int')
             df['Pos'] = df['Pos'].astype('category')
-            df.iloc[:,6:] = df.iloc[:, 6:].astype('float')
+            df.iloc[:, 6:] = df.iloc[:, 6:].astype('float')
             return df.iloc[:, 2:]
         except HTTPError:
             pass
