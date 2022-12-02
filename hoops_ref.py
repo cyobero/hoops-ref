@@ -108,3 +108,16 @@ class HoopsRefClient:
             pass
 
         return pd.DataFrame()
+
+    def advanced(self, season: int):
+        """
+        Returns advanced stats for each player during a given `season`
+        """
+        url = f'https://www.basketball-reference.com/leagues/NBA_{season}_advanced.html#advanced_stats::7'
+        try:
+            df = pd.read_html(url)[0].iloc[:, 1:]
+            df = df.drop(['Unnamed: 19', 'Unnamed: 24'], axis=1)
+            df = df.drop(df[df['Player'] == 'Player'].index).reset_index()
+            return df.iloc[:,1:]
+        except HTTPError as e:
+            print(e)
