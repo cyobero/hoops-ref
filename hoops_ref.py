@@ -35,7 +35,7 @@ class HoopsRefClient:
 
             Parameters
             -----------------
-            team (str) - The 3-letter NBA team abbreviation (e.g. Chicago Bulls is 'CHI') 
+            team (str) - The 3-letter NBA team abbreviation (e.g. Chicago Bulls is 'CHI')
             year (int) - The year of season. Because a season starts and ends in different years,
                          the year provided is assumed to be the year the season ends. Thus,
                          passing in `2022` retrieves the game results for the 2021-2022 season
@@ -65,15 +65,13 @@ class HoopsRefClient:
             # This removes them.
             df.drop(df[df['Date'] == 'Date'].index, inplace=True)
             df.reset_index(inplace=True)
-
             df.rename(columns={'Unnamed: 5': 'Venue'}, inplace=True)
-            # Convert columns to their appropriate types
-            df[['Tm', 'Opp']] = df[['Tm', 'Opp']].astype('int')
-            # Make `Date` column the index
-            df.index = pd.Index(df['Date'])
             # Make `Venue` either 'H' for NaN or 'A' for '@'
             df['Venue'] = df['Venue'].apply(
                 lambda x: 'H' if x is np.nan else 'A')
+            df.dropna(inplace=True)
+            # Make `Date` column the index
+            df.index = pd.Index(df['Date'])
             return df[['Opponent', 'Tm', 'Opp', 'Venue']]
 
         return _clean_df(_load_df(team, season))
