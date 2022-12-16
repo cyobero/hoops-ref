@@ -7,7 +7,7 @@ from urllib.error import HTTPError
 
 
 class HoopsRefClient:
-    ENDPOINT = "https://www.basketball-reference.com"
+    BASE_URL = "https://www.basketball-reference.com"
 
     def __init__(self, *args, **kwargs):
         for k, v in kwargs.items():
@@ -40,7 +40,7 @@ class HoopsRefClient:
                          the year provided is assumed to be the year the season ends. Thus,
                          passing in `2022` retrieves the game results for the 2021-2022 season
             """
-            url = f'{self.ENDPOINT}/teams/{team}/{season}_games.html'
+            url = f'{self.BASE_URL}/teams/{team}/{season}_games.html'
             if playoffs:
                 url += '#games_playoffs'
                 try:
@@ -70,6 +70,7 @@ class HoopsRefClient:
             df['Venue'] = df['Venue'].apply(
                 lambda x: 'H' if x is np.nan else 'A')
             df.dropna(inplace=True)
+            df[['Tm', 'Opp']] = df[['Tm', 'Opp']].astype('int32')
             # Make `Date` column the index
             df.index = pd.Index(df['Date'])
             return df[['Opponent', 'Tm', 'Opp', 'Venue']]
@@ -94,7 +95,7 @@ class HoopsRefClient:
         Return a pandas DataFrame containing individual players' per-game stats for a
         given `season`.
         """
-        url = f'{self.ENDPOINT}/leagues/NBA_{season}_per_game.html#per_game_stats'
+        url = f'{self.BASE_URL}/leagues/NBA_{season}_per_game.html#per_game_stats'
         try:
             df = pd.read_html(url)[0]
             df = df.drop(df[df['Player'] == 'Player'].index).reset_index()
